@@ -1,0 +1,44 @@
+{
+  "name": "ytdl-nas-fe",
+  "version": "0.0.1",
+  "description": "youtube-dl frontend for NAS devices.",
+  "main": "server/index.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "node --experimental-modules server/index.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akshat1/ytdl-nas-fe.git"
+  },
+  "author": "akshat.sh@gmail.com",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/akshat1/ytdl-nas-fe/issues"
+  },
+  "homepage": "https://github.com/akshat1/ytdl-nas-fe#readme",
+  "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "less": "^3.10.3",
+    "less-loader": "^5.0.0",
+    "style-loader": "^1.0.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9"
+  }
+}
