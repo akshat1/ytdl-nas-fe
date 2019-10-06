@@ -11,7 +11,13 @@ TODO:
   - keep the output for each task in a buffer. send that buffer to the user when the user connects to the correspnding room (basically, a 'bootsrtap client for room' event).
 */
 
-const taskMan = makeTaskManager({
+let taskMan;
+const downloadOneFile = (item) => {
+  console.log('download', item.url);
+  
+};
+
+taskMan = makeTaskManager({
   processOne: (item) => {
     console.log('process', item);
     return new Promise(r => setTimeout(r, 30000));
