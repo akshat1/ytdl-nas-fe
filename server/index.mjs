@@ -1,7 +1,7 @@
 import http from 'http';
 import express from 'express';
 import SocketIO from 'socket.io';
-import bootstrapClient from './event-handlers';
+import bootstrapApp from './event-handlers';
 
 // Config
 const port = 4000;
@@ -14,9 +14,6 @@ app.use(express.static('build'));
 
 // Sockets
 const io = SocketIO(server);
-io.on('connection', (socket) => {
-  bootstrapClient(socket);
-  console.log('socket connected');
-});
+bootstrapApp(io);
 
 server.listen(port, () => console.log(`Server listening on port ${port}`));

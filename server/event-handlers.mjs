@@ -1,5 +1,6 @@
 import * as Events from './events';
 import makeTaskManager from './task-manager';
+import ytdlDownload from './download-file';
 
 /*
 When a user connects, we send them the current task list via the ClientBootstrap event.
@@ -11,35 +12,32 @@ TODO:
   - keep the output for each task in a buffer. send that buffer to the user when the user connects to the correspnding room (basically, a 'bootsrtap client for room' event).
 */
 
-let taskMan;
-const downloadOneFile = (item) => {
-  console.log('download', item.url);
-  
-};
+const bootstrapApp = io => {
+  let taskMan;
 
-taskMan = makeTaskManager({
-  processOne: (item) => {
-    console.log('process', item);
-    return new Promise(r => setTimeout(r, 30000));
+  taskMan = makeTaskManager({
+    processOne: (item) => ytdlDownload({ item, taskMan, io }),
+  });
+
+  const onTaskAdded = ({ url }) => {
+    console.log('TaskAdded');
+    taskMan.addToQueue(url);
+  };
+
+  const bootstrapClient = (socket) => {
+    console.log('bootstrap');
+    socket.emit(Events.ClientBootstrap, { tasks: taskMan.getQueue() });
+    console.log('wireAllEvents');
+    io.on(Events.TaskAdded, onTaskAdded);
+    taskMan.on(Events.QueueUpdated, () => io.emit(Events.QueueUpdated, taskMan.getQueue()));
+    taskMan.on(Events.TaskStatusChanged, task => io.emit(Events.TaskStatusChanged, task));
   }
-});
 
-const onTaskAdded = (socket, { url }) => {
-  console.log('TaskAdded');
-  taskMan.addToQueue(url);
-};
-
-const wireAllEvents = (socket) => {
-  console.log('wireAllEvents');
-  socket.on(Events.TaskAdded, (...args) => onTaskAdded(socket, ...args));
-  taskMan.on(Events.QueueUpdated, () => socket.emit(Events.QueueUpdated, taskMan.getQueue()));
-  taskMan.on(Events.TaskStatusChanged, task => socket.emit(Events.TaskStatusChanged, task));
+  // Wire-up each client as it connects.
+  io.on('connection', (socket) => {
+    console.log('socket connected');
+    bootstrapClient(socket);
+  });
 }
 
-const bootstrapClient = (socket) => {
-  console.log('bootstrap');
-  socket.emit(Events.ClientBootstrap, { tasks: taskMan.getQueue() });
-  wireAllEvents(socket);
-}
-
-export default bootstrapClient;
+export default bootstrapApp;
