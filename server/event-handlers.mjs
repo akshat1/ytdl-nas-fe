@@ -1,5 +1,12 @@
 import * as Events from './events';
-import taskMan from './task-manager';
+import makeTaskManager from './task-manager';
+
+const taskMan = makeTaskManager({
+  processOne: (item) => {
+    console.log('process', item);
+    return new Promise(r => setTimeout(r, 30000));
+  }
+});
 
 const onTaskAdded = (socket, { url }) => {
   console.log('TaskAdded');
