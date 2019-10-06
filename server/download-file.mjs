@@ -14,12 +14,13 @@ const SpawnOpts = {
 const getArgs = (url, dirName) => [
   '--write-sub',
   '--write-auto-sub',
-  '--sub-lang en',
+  '--sub-lang',
+  'en',
   '--write-description',
   '--write-info-json',
   '--write-annotations',
   '--write-thumbnail',
-  `"${url}"`,
+  url,
   // '-o',
   // `${path.join(dirName, '%(title)s-%(id)s.%(ext)s')}`,
 ];
@@ -28,26 +29,37 @@ const getArgs = (url, dirName) => [
 // mkdir -p that download target.
 // try to cd into that location and then download.
 
-const getFileName = async url =>
-  (await execFile(`youtube-dl --get-filename "${url}"`)).toString();
+const getFileName = async url => {
+  const fileName = (await execFile('youtube-dl', ['--get-filename', url])).stdout.toString();
+  return path.basename(fileName, path.extname(fileName));
+}
 
 const prepareLocation = dirName =>
-  mkdir(path.join(process.cwd, dirName), { recursive: true });
+  mkdir(dirName, { recursive: true });
 
-const ytdlDownload = async ({ item, taskMan, io }) =>
-  new Promise((resolve, reject) => {
-    const dirName = await getFileName(item.url);
-    await prepareLocation(dirName);
-    const prcs = spawn('youtube-dl', getArgs(url, dirName), { detached: true, cwd: dirName });
-    prcs.on('close', () => {
-      console.log(`[[Done with ${item.id}]]`);
-      resolve();
-    });
+const ytdlDownload = ({ item, taskMan, io }) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const { url } = item;
+      // Async func inside a promise because we don't want to resolve until close event occurs.
+      const dirName = path.join(process.cwd(), await getFileName(url));
+      console.log(`dirName := ${dirName}`);
+      await prepareLocation(dirName);
+      console.log(`exec: youtube-dl ${getArgs(url, dirName).join(' ')}`);
+      const prcs = spawn('youtube-dl', getArgs(url, dirName), { detached: true, cwd: dirName });
+      prcs.on('close', () => {
+        console.log(`[[Done with ${item.id}]]`);
+        resolve();
+      });
 
-    const onData = (data) => console.log(`>> ${data}`);
+      const onData = (data) => console.log(`>> ${data}`);
 
-    prcs.stdout.on('data', onData);
-    prcs.stderr.on('data', onData);
+      prcs.stdout.on('data', onData);
+      prcs.stderr.on('data', onData);
+    } catch (err) {
+      console.log('Error occurred', err);
+      reject(err);
+    }
   });
 
 export default ytdlDownload;

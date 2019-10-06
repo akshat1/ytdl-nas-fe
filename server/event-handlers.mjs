@@ -19,6 +19,9 @@ const bootstrapApp = io => {
     processOne: (item) => ytdlDownload({ item, taskMan, io }),
   });
 
+  taskMan.on(Events.QueueUpdated, () => io.emit(Events.QueueUpdated, taskMan.getQueue()));
+  taskMan.on(Events.TaskStatusChanged, task => io.emit(Events.TaskStatusChanged, task));
+
   const onTaskAdded = ({ url }) => {
     console.log('TaskAdded');
     taskMan.addToQueue(url);
@@ -28,9 +31,7 @@ const bootstrapApp = io => {
     console.log('bootstrap');
     socket.emit(Events.ClientBootstrap, { tasks: taskMan.getQueue() });
     console.log('wireAllEvents');
-    io.on(Events.TaskAdded, onTaskAdded);
-    taskMan.on(Events.QueueUpdated, () => io.emit(Events.QueueUpdated, taskMan.getQueue()));
-    taskMan.on(Events.TaskStatusChanged, task => io.emit(Events.TaskStatusChanged, task));
+    socket.on(Events.TaskAdded, onTaskAdded);
   }
 
   // Wire-up each client as it connects.

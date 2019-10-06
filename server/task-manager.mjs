@@ -26,11 +26,13 @@ const makeTaskManager = (args) => {
   let nextIsRunning = false;
   const inFlight = new Set();
 
-  const markDone = item => {
+  const markDone = (item, err) => {
     console.log('markDone', item.url);
     inFlight.delete(item);
     queue.splice(queue.indexOf(item), 1);
-    item.status = Status.complete;
+    item.status = err ? Status.failed : Status.complete;
+    if (err)
+      item.error = err.message;
     item.finished = Date.now();
     done.push(item);
     while(done.length >= maxDoneSize)
@@ -43,8 +45,14 @@ const makeTaskManager = (args) => {
     console.log('Going to process', item.url);
     item.status = Status.running;
     eventEmitter.emit(Events.TaskStatusChanged, item);
-    await processOne(item);
-    markDone(item);
+    try {
+      const newItem = await processOne(item);
+      console.log('Markdone');
+      markDone(item);
+    } catch (err) {
+      console.log('Markdone with error', err);
+      markDone(item, err);
+    }
   }
 
   const next = () => {
