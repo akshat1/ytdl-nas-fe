@@ -1,0 +1,38 @@
+@import (reference) '../vars.less';
+
+.task {
+  padding: @padding-0;
+
+  &__url {
+    text-overflow: ellipsis;
+    direction: rtl;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 40em;
+    padding-left: 1.5em;
+  }
+
+  &--pending {
+    &::before {
+      content: '⏳';
+      position: absolute;
+      left: @padding-0;
+    }
+  }
+
+  &--running {
+    &::before {
+      content: '🏃‍♂️';
+      position: absolute;
+      left: @padding-0;
+    }
+  }
+
+  &--complete {
+    &::before {
+      content: '✔️';
+      position: absolute;
+      left: @padding-0;
+    }
+  }
+}
