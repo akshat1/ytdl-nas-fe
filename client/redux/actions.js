@@ -6,6 +6,12 @@ export const SetInputFormDisabled = 'SetInputFormDisabled';
 export const ClearInputForm = 'ClearInputForm';
 export const QueueUpdated = 'QueueUpdated';
 export const TaskStatusChanged = 'TaskStatusChanged';
+export const SetSelectedTaskId = 'SetSelectedTaskId';
+
+export const selectTask = ({ id }) => ({
+  type: SetSelectedTaskId,
+  id,
+});
 
 export const setInputFormDisabled = disabled => ({
   type: SetInputFormDisabled,

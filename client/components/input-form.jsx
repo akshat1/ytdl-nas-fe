@@ -5,8 +5,9 @@ import React from'react';
 
 const InputForm = ({ url, onFormSubmit, disabled, onUrlChanged, errorMessage }) =>
   <form className="input-form" onSubmit={onFormSubmit}>
+    <h3>Add a new task</h3>
     <label>
-      URL --
+      URL
       <input className="input-form__url" name="url" value={url} disabled={disabled} onChange={onUrlChanged}/>
       <div className="input-form__error">{errorMessage}</div>
     </label>

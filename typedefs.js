@@ -3,8 +3,9 @@
  * @property {string} id -
  * @property {string} url -
  * @property {Status} status -
- * @property {Date} added -
- * @property {Date} finished -
+ * @property {number} added -
+ * @property {number} finished -
+ * @property {string} error -
  */
 
 /**
@@ -18,6 +19,7 @@
  * @typedef AppState
  * @property {Tasks[]} tasks -
  * @property {InputFormState} inputForm -
+ * @property {string} selectedTaskId -
  */
 
 /**

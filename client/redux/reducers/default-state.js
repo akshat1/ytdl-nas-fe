@@ -18,4 +18,5 @@ export const tasks = [];
 export default {
   inputForm,
   tasks,
+  selectedTaskId: null,
 };
