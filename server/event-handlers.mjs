@@ -15,16 +15,38 @@ TODO:
 const bootstrapApp = io => {
   let taskMan;
 
+  // Real dirty deeds now. This WILL lead to a memory leak.
+  const outputBuffer = {};
+
+  const progress = ({ id }, output) => {
+    if (!outputBuffer[id]) {
+      outputBuffer[id] = [];
+    }
+
+    const opBuff = outputBuffer[id];
+    opBuff.push(output);
+    io.of(`/${id}`).emit(Event.TaskProgress, output);
+  }
+
   taskMan = makeTaskManager({
-    processOne: (item) => ytdlDownload({ item, taskMan, io }),
+    processOne: (item) => ytdlDownload({ item, taskMan, io, progress }),
   });
 
   taskMan.on(Events.QueueUpdated, () => io.emit(Events.QueueUpdated, taskMan.getQueue()));
   taskMan.on(Events.TaskStatusChanged, task => io.emit(Events.TaskStatusChanged, task));
 
-  const onTaskAdded = ({ url }) => {
+  const onTaskAdded = ({ id,  url }) => {
     console.log('TaskAdded');
     taskMan.addToQueue(url);
+    progress({ id }, 'Added to queue');
+    const nspace = io.of(`/${id}`);
+    nspace.on('connection', socket => {
+      console.log(`joined /${id}`);
+      socket.emit(Event.ClientNSpaceBootstrap, {
+        id,
+        output: output[id],
+      });
+    });
   };
 
   const bootstrapClient = (socket) => {

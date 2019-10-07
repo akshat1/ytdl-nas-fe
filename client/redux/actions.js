@@ -7,6 +7,12 @@ export const ClearInputForm = 'ClearInputForm';
 export const QueueUpdated = 'QueueUpdated';
 export const TaskStatusChanged = 'TaskStatusChanged';
 export const SetSelectedTaskId = 'SetSelectedTaskId';
+export const AppendTaskOutput = 'AppendTaskOutput';
+
+export const appendTaskOutput = output => ({
+  type: AppendTaskOutput,
+  output,
+});
 
 export const selectTask = ({ id }) => ({
   type: SetSelectedTaskId,

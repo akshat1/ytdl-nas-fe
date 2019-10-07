@@ -12,6 +12,8 @@ export const inputForm = {
  */
 export const tasks = [];
 
+export const selectedTaskOutput = [];
+
 /**
  * @type {AppState}
  */
@@ -19,4 +21,5 @@ export default {
   inputForm,
   tasks,
   selectedTaskId: null,
+  selectedTaskOutput,
 };

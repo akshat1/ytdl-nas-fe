@@ -20,6 +20,7 @@
  * @property {Tasks[]} tasks -
  * @property {InputFormState} inputForm -
  * @property {string} selectedTaskId -
+ * @property {string[]} selectedTaskOutput -
  */
 
 /**

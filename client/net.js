@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { updateQueue } from './redux/actions';
+import { updateQueue, appendTaskOutput } from './redux/actions';
 import * as Events from '../server/events.mjs';
 
 /**
@@ -25,6 +25,10 @@ const wireSocketToStore = ({ socket, store }) => {
 
   socket.on(Events.ClientBootstrap, ({ tasks }) => {
     store.dispatch(updateQueue(tasks))
+  });
+
+  socket.on(Events.ClientNSpaceBootstrap, ({ output }) => {
+    store.dispatch(appendTaskOutput(output));
   });
 }
 

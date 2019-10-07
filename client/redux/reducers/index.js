@@ -7,6 +7,20 @@ import * as Actions from '../actions';
 const selectedTaskId = (state = DefaultState.selectedTaskId, { type, id }) =>
   type === Actions.SetSelectedTaskId ? id : state;
 
+const selectedTaskOutput = (state = DefaultState.selectedTaskOutput, action) => {
+  const { type, output } = action;
+  if (type === Actions.SetSelectedTaskId) {
+    // Clear output whenever taskId is changed
+    return DefaultState.selectedTaskOutput;
+  }
+
+  if (type == Actions.AppendTaskOutput) {
+    return [...state, output];
+  }
+
+  return state;
+}
+
 /**
  * @function rootReducer
  * @param {AppState} -
@@ -17,4 +31,5 @@ export default combineReducers({
   tasks,
   inputForm,
   selectedTaskId,
+  selectedTaskOutput,
 });
