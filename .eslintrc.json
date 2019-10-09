@@ -1,0 +1,22 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "plugins": ["node"],
+  "env": {
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "no-console": "off",
+    "valid-jsdoc": ["off", { "requireReturn": false }],
+    "indent": ["error", 2],
+    "node/no-missing-require": "error"
+  }
+}

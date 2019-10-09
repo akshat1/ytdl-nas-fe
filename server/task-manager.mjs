@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import * as Events from './events';
+import * as Events from './event.mjs';
 import md5 from 'blueimp-md5';
 
 /**
@@ -46,7 +46,7 @@ const makeTaskManager = (args) => {
     item.status = Status.running;
     eventEmitter.emit(Events.TaskStatusChanged, item);
     try {
-      const newItem = await processOne(item);
+      await processOne(item);
       console.log('Markdone');
       markDone(item);
     } catch (err) {

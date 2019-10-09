@@ -1,7 +1,7 @@
 import http from 'http';
 import express from 'express';
 import SocketIO from 'socket.io';
-import bootstrapApp from './event-handlers';
+import bootstrapApp from './event-handlers.mjs';
 
 // Config
 const port = 4000;

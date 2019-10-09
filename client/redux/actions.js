@@ -47,7 +47,7 @@ export const submitTask = url => {
   // setInputFormDisabled(true);
   getClient().emit(Events.TaskAdded, { url });
   
-  return clearInputForm();;
+  return clearInputForm();
 }
 
 export const updateQueue = queue => ({

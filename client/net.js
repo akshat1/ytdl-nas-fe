@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { updateQueue, appendTaskOutput } from './redux/actions';
-import * as Events from '../server/events.mjs';
+import * as Events from '../server/event.mjs';
 
 /**
  * 

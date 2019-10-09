@@ -7,11 +7,7 @@ const { spawn } = childProcess;
 const execFile = promisify(childProcess.execFile);
 const mkdir = promisify(fs.mkdir);
 
-const SpawnOpts = {
-  detached: true,
-};
-
-const getArgs = (url, dirName) => [
+const getArgs = url => [
   '--write-sub',
   '--write-auto-sub',
   '--sub-lang',
@@ -21,8 +17,6 @@ const getArgs = (url, dirName) => [
   '--write-annotations',
   '--write-thumbnail',
   url,
-  // '-o',
-  // `${path.join(dirName, '%(title)s-%(id)s.%(ext)s')}`,
 ];
 
 // figure out download target on the FS.
@@ -37,7 +31,8 @@ const getFileName = async url => {
 const prepareLocation = dirName =>
   mkdir(dirName, { recursive: true });
 
-const ytdlDownload = ({ item, taskMan, io }) =>
+const ytdlDownload = ({ item }) =>
+  // eslint-disable-next-line no-async-promise-executor
   new Promise(async (resolve, reject) => {
     try {
       const { url } = item;

@@ -1,6 +1,6 @@
-import * as Events from './events';
-import makeTaskManager from './task-manager';
-import ytdlDownload from './download-file';
+import * as Event from './event.mjs';
+import makeTaskManager from './task-manager.mjs';
+import ytdlDownload from './download-file.mjs';
 
 /*
 When a user connects, we send them the current task list via the ClientBootstrap event.
@@ -32,8 +32,8 @@ const bootstrapApp = io => {
     processOne: (item) => ytdlDownload({ item, taskMan, io, progress }),
   });
 
-  taskMan.on(Events.QueueUpdated, () => io.emit(Events.QueueUpdated, taskMan.getQueue()));
-  taskMan.on(Events.TaskStatusChanged, task => io.emit(Events.TaskStatusChanged, task));
+  taskMan.on(Event.QueueUpdated, () => io.emit(Event.QueueUpdated, taskMan.getQueue()));
+  taskMan.on(Event.TaskStatusChanged, task => io.emit(Event.TaskStatusChanged, task));
 
   const onTaskAdded = ({ id,  url }) => {
     console.log('TaskAdded');
@@ -44,16 +44,16 @@ const bootstrapApp = io => {
       console.log(`joined /${id}`);
       socket.emit(Event.ClientNSpaceBootstrap, {
         id,
-        output: output[id],
+        output: outputBuffer[id],
       });
     });
   };
 
   const bootstrapClient = (socket) => {
     console.log('bootstrap');
-    socket.emit(Events.ClientBootstrap, { tasks: taskMan.getQueue() });
+    socket.emit(Event.ClientBootstrap, { tasks: taskMan.getQueue() });
     console.log('wireAllEvents');
-    socket.on(Events.TaskAdded, onTaskAdded);
+    socket.on(Event.TaskAdded, onTaskAdded);
   }
 
   // Wire-up each client as it connects.
