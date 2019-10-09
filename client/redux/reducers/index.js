@@ -9,13 +9,13 @@ const selectedTaskId = (state = DefaultState.selectedTaskId, { type, id }) =>
 
 const selectedTaskOutput = (state = DefaultState.selectedTaskOutput, action) => {
   const { type, output } = action;
-  if (type === Actions.SetSelectedTaskId) {
+  if (type === Actions.SetTaskOutput) {
     // Clear output whenever taskId is changed
-    return DefaultState.selectedTaskOutput;
+    return action.output;
   }
 
-  if (type == Actions.AppendTaskOutput) {
-    return [...state, output];
+  if (type === Actions.AppendTaskOutput) {
+    return state.concat(output);
   }
 
   return state;

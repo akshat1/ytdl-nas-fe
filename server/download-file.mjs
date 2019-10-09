@@ -31,13 +31,13 @@ const getFileName = async url => {
 const prepareLocation = dirName =>
   mkdir(dirName, { recursive: true });
 
-const ytdlDownload = ({ item }) =>
+const ytdlDownload = ({ item, onProgress }) =>
   // eslint-disable-next-line no-async-promise-executor
   new Promise(async (resolve, reject) => {
     try {
       const { url } = item;
       // Async func inside a promise because we don't want to resolve until close event occurs.
-      const dirName = path.join(process.cwd(), await getFileName(url));
+      const dirName = path.join(process.cwd(), 'download', await getFileName(url));
       console.log(`dirName := ${dirName}`);
       await prepareLocation(dirName);
       console.log(`exec: youtube-dl ${getArgs(url, dirName).join(' ')}`);
@@ -47,7 +47,10 @@ const ytdlDownload = ({ item }) =>
         resolve();
       });
 
-      const onData = (data) => console.log(`>> ${data}`);
+      const onData = (output) => onProgress({
+        id: item.id,
+        output,
+      });
 
       prcs.stdout.on('data', onData);
       prcs.stderr.on('data', onData);

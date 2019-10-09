@@ -1,5 +1,7 @@
-import { createStore } from 'redux';
+import { applyMiddleware, createStore, compose } from 'redux';
 import reducers from './reducers';
+import thunk from 'redux-thunk';
+import { socketMiddleware } from '../net';
 
 let store;
 
@@ -8,10 +10,12 @@ let store;
  */
 const getStore = () => {
   if (!store) {
-    store = createStore(
-      reducers,
-      window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
-    );
+    const composeArgs = [
+      applyMiddleware(thunk, socketMiddleware),
+      window.devToolsExtension ? window.devToolsExtension() : f => f,
+    ];
+
+    store = compose(...composeArgs)(createStore)(reducers);
   }
 
   return store;

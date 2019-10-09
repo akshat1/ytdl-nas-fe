@@ -5,6 +5,7 @@ import Tasks from './tasks';
 import InputForm from './input-form';
 import TaskDetails from './task-details';
 import _ from 'lodash';
+import TaskOutput from './task-output';
 
 const App = ({ selectedTaskId }) =>
   <div id="app">
@@ -15,6 +16,7 @@ const App = ({ selectedTaskId }) =>
         <If condition={selectedTaskId}>
           <hr />
           <TaskDetails />
+          <TaskOutput />
         </If>
       </div>
     </div>
