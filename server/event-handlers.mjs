@@ -7,38 +7,23 @@ import getLogger from '../common/logger.mjs';
 
 const logger = getLogger({ module: 'event-handlers' });
 
-/*
-When a user connects, we send them the current task list via the ClientBootstrap event.
-When a task is added, we emit the QueueUpdated event on the socket, sending all clients the current queue.
-When a task status changes, we send the latest definition of the task down the wires using TaskStatusChanged.
-TODO:
-  - when a task is added, create a new room (clients will connect to that room when the user selects the corresponding task in the UI).
-  - publish all updates from processOne (for instance, updates from curl/aria etc.) to the said room. the clients will use that to display the process output in the browser.
-  - keep the output for each task in a buffer. send that buffer to the user when the user connects to the correspnding room (basically, a 'bootsrtap client for room' event).
-*/
+// Real dirty deeds now. This WILL lead to a memory leak.
+// Need to set-up a syetem of max number of items (because I don't want to implement a least recent type cache).
+const outputBuffer = {};
 
 const onConnection = ({ socket, io }) => {
-  let taskMan;
-  // Real dirty deeds now. This WILL lead to a memory leak.
-  const outputBuffer = {};
+  let taskMan;  
 
   const onProgress = ({ id, output: buff }) => {
     const output = buff.toString();
     assert.equal(typeof id, 'string', 'onProgress missing id');
     logger.debug(`Progress for ${id}`);
     if (!outputBuffer[id]) {
-      logger.debug('Created output buffer');
       outputBuffer[id] = [];
     }
 
     const opBuff = outputBuffer[id];
-    logger.debug('>>...');
     opBuff.push(output);
-    logger.debug('Emit to ', id);
-    logger.debug({
-      id,
-      output,
-    });
     io.to(id).emit(Event.TaskProgress, {
       id,
       output,
@@ -47,6 +32,7 @@ const onConnection = ({ socket, io }) => {
 
   taskMan = makeTaskManager({
     processOne: (item) => ytdlDownload({ item, taskMan, io, onProgress }),
+    batchSize: 1,
   });
 
   const onTaskAdded = ({ url }) => {

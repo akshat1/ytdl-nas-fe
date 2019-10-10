@@ -15,7 +15,7 @@ export const Status = {
   failed: 'failed',
 };
 
-const makeTaskManager = (args) => {
+const makeTaskManagerInner = (args) => {
   const {
     processOne,
     batchSize = 3,
@@ -75,11 +75,17 @@ const makeTaskManager = (args) => {
     logger.debug('txen');
   }
 
-  const getQueue = () =>
-    [
+  const getQueue = () => {
+    const result = [
       ...done,
       ...queue,
     ]
+    logger.debug({
+      cPos: 'getQueue',
+      queue,
+    });
+    return result;
+  }
 
   const addToQueue = (url) => {
     logger.debug('addToQueue', url);
@@ -109,5 +115,15 @@ const makeTaskManager = (args) => {
     addToQueue,
   };
 };
+
+let instance;
+
+const makeTaskManager = (args) => {
+  if (!instance) {
+    instance = makeTaskManagerInner(args);
+  }
+
+  return instance;
+}
 
 export default makeTaskManager;

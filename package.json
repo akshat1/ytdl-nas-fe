@@ -7,6 +7,7 @@
     "lint": "eslint --ext .mjs --ext .js --ext .jsx server/ client/",
     "build": "webpack",
     "start": "node --experimental-modules server/index.mjs",
+    "start-debug": "node --inspect --experimental-modules server/index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
