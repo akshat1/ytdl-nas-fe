@@ -1,8 +1,11 @@
-import * as Event from './event.mjs';
+import * as Event from '../common/event.mjs';
 import makeTaskManager from './task-manager.mjs';
 import ytdlDownload from './download-file.mjs';
 import assert from 'assert';
 import md5 from 'blueimp-md5';
+import getLogger from '../common/logger.mjs';
+
+const logger = getLogger({ module: 'event-handlers' });
 
 /*
 When a user connects, we send them the current task list via the ClientBootstrap event.
@@ -22,17 +25,17 @@ const onConnection = ({ socket, io }) => {
   const onProgress = ({ id, output: buff }) => {
     const output = buff.toString();
     assert.equal(typeof id, 'string', 'onProgress missing id');
-    console.log(`Progress for ${id}`);
+    logger.debug(`Progress for ${id}`);
     if (!outputBuffer[id]) {
-      console.log('Created output buffer');
+      logger.debug('Created output buffer');
       outputBuffer[id] = [];
     }
 
     const opBuff = outputBuffer[id];
-    console.log('>>...');
+    logger.debug('>>...');
     opBuff.push(output);
-    console.log('Emit to ', id);
-    console.log({
+    logger.debug('Emit to ', id);
+    logger.debug({
       id,
       output,
     });
@@ -47,7 +50,7 @@ const onConnection = ({ socket, io }) => {
   });
 
   const onTaskAdded = ({ url }) => {
-    console.log('TaskAdded');
+    logger.debug('TaskAdded');
     taskMan.addToQueue(url);
     onProgress({ id: md5(url), output: 'Added to queue\n' });
   };
@@ -55,9 +58,9 @@ const onConnection = ({ socket, io }) => {
   taskMan.on(Event.QueueUpdated, () => io.emit(Event.QueueUpdated, taskMan.getQueue()));
   taskMan.on(Event.TaskStatusChanged, task => io.emit(Event.TaskStatusChanged, task));
 
-  console.log('bootstrap');
+  logger.debug('bootstrap');
   socket.emit(Event.ClientBootstrap, { tasks: taskMan.getQueue() });
-  console.log('wireAllEvents');
+  logger.debug('wireAllEvents');
   socket.on(Event.TaskAdded, onTaskAdded);
 
   socket.on(Event.ClientLeave, ({ id }) => {
@@ -67,7 +70,7 @@ const onConnection = ({ socket, io }) => {
 
   socket.on(Event.ClientJoin, ({ id }) => {
     assert.equal(typeof id, 'string', 'ClientJoin event missing id');
-    console.log('ClientJoin', id);
+    logger.debug('ClientJoin', id);
     socket.join(id);
     socket.emit(Event.ClientNSpaceBootstrap, {
       id,
@@ -79,7 +82,7 @@ const onConnection = ({ socket, io }) => {
 const bootstrapApp = io => {
   // Wire-up each client as it connects.
   io.on('connection', (socket) => {
-    console.log('socket connected');
+    logger.debug('socket connected');
     onConnection({ socket, io });
   });
 }

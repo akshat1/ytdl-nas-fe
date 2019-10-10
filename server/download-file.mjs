@@ -2,6 +2,9 @@ import * as childProcess from 'child_process';
 import fs from 'fs';
 import { promisify } from 'util';
 import path from 'path';
+import getLogger from '../common/logger.mjs';
+
+const logger = getLogger({ module: 'download-file' });
 
 const { spawn } = childProcess;
 const execFile = promisify(childProcess.execFile);
@@ -38,12 +41,12 @@ const ytdlDownload = ({ item, onProgress }) =>
       const { url } = item;
       // Async func inside a promise because we don't want to resolve until close event occurs.
       const dirName = path.join(process.cwd(), 'download', await getFileName(url));
-      console.log(`dirName := ${dirName}`);
+      logger.debug(`dirName := ${dirName}`);
       await prepareLocation(dirName);
-      console.log(`exec: youtube-dl ${getArgs(url, dirName).join(' ')}`);
+      logger.debug(`exec: youtube-dl ${getArgs(url, dirName).join(' ')}`);
       const prcs = spawn('youtube-dl', getArgs(url, dirName), { detached: true, cwd: dirName });
       prcs.on('close', () => {
-        console.log(`[[Done with ${item.id}]]`);
+        logger.debug(`[[Done with ${item.id}]]`);
         resolve();
       });
 
@@ -55,7 +58,7 @@ const ytdlDownload = ({ item, onProgress }) =>
       prcs.stdout.on('data', onData);
       prcs.stderr.on('data', onData);
     } catch (err) {
-      console.log('Error occurred', err);
+      logger.debug('Error occurred', err);
       reject(err);
     }
   });

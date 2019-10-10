@@ -1,6 +1,9 @@
 import { appendTaskOutput, SetSelectedTaskId, updateQueue, setTaskOutput } from './redux/actions';
-import * as Event from '../server/event.mjs';
+import * as Event from '../common/event.mjs';
 import getClient from './io-client';
+import getLogger from '../common/logger.mjs';
+
+const logger = getLogger({ module: 'net' });
 
 /**
  * 
@@ -10,12 +13,12 @@ import getClient from './io-client';
 const wireSocketToStore = ({ store }) => {
   const socket = getClient();
   socket.on(Event.QueueUpdated, (queue) => {
-    console.log('Queue Updated');
+    logger.debug('Queue Updated');
     store.dispatch(updateQueue(queue));
   });
 
   socket.on(Event.TaskStatusChanged, (updatedTask) => {
-    console.log('Task Status Changed');
+    logger.debug('Task Status Changed');
     const tasks = [
       ...store.getState().tasks.filter(({ id }) => id !== updatedTask.id),
       updatedTask,
@@ -42,13 +45,13 @@ export const socketMiddleware = store =>
   next =>
     action => {
       if (action.type === SetSelectedTaskId && isValidTaskId(store.getState().selectedTaskId)) {
-        console.log(`Leave ${store.getState().selectedTaskId}`);
+        logger.debug(`Leave ${store.getState().selectedTaskId}`);
         getClient().emit(Event.ClientLeave, { id: store.getState().selectedTaskId });
       }
       next(action);
       
       if (action.type === SetSelectedTaskId && isValidTaskId(store.getState().selectedTaskId)) {
-        console.log(`Join ${store.getState().selectedTaskId}`);
+        logger.debug(`Join ${store.getState().selectedTaskId}`);
         getClient().emit(Event.ClientJoin, { id: store.getState().selectedTaskId });
       }
     }

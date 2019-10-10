@@ -1,6 +1,9 @@
+import * as Events from '../common/event.mjs';
 import EventEmitter from 'events';
-import * as Events from './event.mjs';
+import getLogger from '../common/logger.mjs';
 import md5 from 'blueimp-md5';
+
+const logger = getLogger({ module: 'event-handlers' });
 
 /**
  * @enum {string} Status -
@@ -27,7 +30,7 @@ const makeTaskManager = (args) => {
   const inFlight = new Set();
 
   const markDone = (item, err) => {
-    console.log('markDone', item.url);
+    logger.debug('markDone', item.url);
     inFlight.delete(item);
     queue.splice(queue.indexOf(item), 1);
     item.status = err ? Status.failed : Status.complete;
@@ -42,23 +45,23 @@ const makeTaskManager = (args) => {
 
   const processSingleItem = async (item) => {
     inFlight.add(item);
-    console.log('Going to process', item.url);
+    logger.debug('Going to process', item.url);
     item.status = Status.running;
     eventEmitter.emit(Events.TaskStatusChanged, item);
     try {
       await processOne(item);
-      console.log('Markdone');
+      logger.debug('Markdone');
       markDone(item);
     } catch (err) {
-      console.log('Markdone with error', err);
+      logger.debug('Markdone with error', err);
       markDone(item, err);
     }
   }
 
   const next = () => {
-    console.log('next')
+    logger.debug('next')
     if (!nextIsRunning) {
-      console.log('...');
+      logger.debug('...');
       nextIsRunning = true;
       while (inFlight.size < batchSize) {
         // Find the first item that is not already in flight.
@@ -69,7 +72,7 @@ const makeTaskManager = (args) => {
       }
       nextIsRunning = false;
     }
-    console.log('txen');
+    logger.debug('txen');
   }
 
   const getQueue = () =>
@@ -79,13 +82,13 @@ const makeTaskManager = (args) => {
     ]
 
   const addToQueue = (url) => {
-    console.log('addToQueue', url);
+    logger.debug('addToQueue', url);
     if (queue.length >= maxPendingSize) {
       throw new Error('Max queue size reached');
     }
 
     if(queue.find(item => item.url === url)) {
-      console.log('duplicate. ignore.');
+      logger.debug('duplicate. ignore.');
       return;
     }
 
