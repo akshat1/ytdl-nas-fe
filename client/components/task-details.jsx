@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import TaskOutput from './task-output';
 import './task-details.less';
 
 const TaskDetails = ({ task }) =>
@@ -9,11 +10,11 @@ const TaskDetails = ({ task }) =>
       <table className="task-details__table">
         <tr>
           <td>URL</td>
-          <td>{task.url}</td>
+          <td><a href={task.url}>{task.url}</a></td>
         </tr>
         <tr>
           <td>Status</td>
-          <td>{task.url}</td>
+          <td className="task-details__status">{task.status}</td>
         </tr>
         <tr>
           <td>Added</td>
@@ -27,7 +28,7 @@ const TaskDetails = ({ task }) =>
         </If>
       </table>
       <div className="task-details__output">
-        Output
+        <TaskOutput />
       </div>
     </div>
   </If>

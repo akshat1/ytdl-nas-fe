@@ -1,24 +1,19 @@
+import { promisify } from 'util';
 import * as childProcess from 'child_process';
 import fs from 'fs';
-import { promisify } from 'util';
-import path from 'path';
+import getConfig from './config.mjs';
 import getLogger from '../common/logger.mjs';
+import path from 'path';
 
 const logger = getLogger({ module: 'download-file' });
 
 const { spawn } = childProcess;
 const execFile = promisify(childProcess.execFile);
 const mkdir = promisify(fs.mkdir);
+const config = getConfig();
 
 const getArgs = url => [
-  '--write-sub',
-  '--write-auto-sub',
-  '--sub-lang',
-  'en',
-  '--write-description',
-  '--write-info-json',
-  '--write-annotations',
-  '--write-thumbnail',
+  ...config['youtube-dl'],
   url,
 ];
 
@@ -40,7 +35,7 @@ const ytdlDownload = ({ item, onProgress }) =>
     try {
       const { url } = item;
       // Async func inside a promise because we don't want to resolve until close event occurs.
-      const dirName = path.join(process.cwd(), 'download', await getFileName(url));
+      const dirName = path.join(process.cwd(), config.downloadLocation, await getFileName(url));
       logger.debug(`dirName := ${dirName}`);
       await prepareLocation(dirName);
       logger.debug(`exec: youtube-dl ${getArgs(url, dirName).join(' ')}`);

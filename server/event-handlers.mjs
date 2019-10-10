@@ -1,19 +1,23 @@
+import { promisify } from 'util';
+import * as childProcess from 'child_process';
 import * as Event from '../common/event.mjs';
-import makeTaskManager from './task-manager.mjs';
-import ytdlDownload from './download-file.mjs';
 import assert from 'assert';
-import md5 from 'blueimp-md5';
+import getConfig from './config.mjs';
 import getLogger from '../common/logger.mjs';
+import makeTaskManager from './task-manager.mjs';
+import md5 from 'blueimp-md5';
+import ytdlDownload from './download-file.mjs';
 
+const execFile = promisify(childProcess.execFile);
 const logger = getLogger({ module: 'event-handlers' });
 
 // Real dirty deeds now. This WILL lead to a memory leak.
 // Need to set-up a syetem of max number of items (because I don't want to implement a least recent type cache).
 const outputBuffer = {};
+const config = getConfig();
 
-const onConnection = ({ socket, io }) => {
-  let taskMan;  
-
+const onConnection = async ({ socket, io }) => {
+  let taskMan;
   const onProgress = ({ id, output: buff }) => {
     const output = buff.toString();
     assert.equal(typeof id, 'string', 'onProgress missing id');
@@ -30,14 +34,16 @@ const onConnection = ({ socket, io }) => {
     });
   }
 
-  taskMan = makeTaskManager({
-    processOne: (item) => ytdlDownload({ item, taskMan, io, onProgress }),
-    batchSize: 1,
-  });
+  taskMan = makeTaskManager(Object.assign(
+    config.taskManager,
+    { processOne: (item) => ytdlDownload({ item, taskMan, io, onProgress }) },
+  ));
 
-  const onTaskAdded = ({ url }) => {
+  const onTaskAdded = async ({ url }) => {
     logger.debug('TaskAdded');
-    taskMan.addToQueue(url);
+    const foo = await execFile('youtube-dl', ['--get-title', url]);
+    const title = foo.stdout.toString();
+    taskMan.addToQueue(url, title);
     onProgress({ id: md5(url), output: 'Added to queue\n' });
   };
 

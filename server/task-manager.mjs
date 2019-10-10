@@ -87,7 +87,7 @@ const makeTaskManagerInner = (args) => {
     return result;
   }
 
-  const addToQueue = (url) => {
+  const addToQueue = (url, title) => {
     logger.debug('addToQueue', url);
     if (queue.length >= maxPendingSize) {
       throw new Error('Max queue size reached');
@@ -99,10 +99,11 @@ const makeTaskManagerInner = (args) => {
     }
 
     const item = {
-      id: md5(url),
-      url,
-      status: Status.pending,
       added: Date.now(),
+      id: md5(url),
+      status: Status.pending,
+      title,
+      url,
     };
     queue.push(item);
     eventEmitter.emit(Events.QueueUpdated, item);
