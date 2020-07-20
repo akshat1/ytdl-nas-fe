@@ -41,7 +41,7 @@
     "classnames": "^2.2.6",
     "eslint-plugin-jsx-control-statements": "^2.2.1",
     "express": "^4.17.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "prop-types": "^15.7.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
